@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "845346581343",
+    "firebase_url": "https://sportre-e7185.firebaseio.com",
+    "project_id": "sportre-e7185",
+    "storage_bucket": "sportre-e7185.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845346581343:android:0b5f9a5cdf4a0b6f",
+        "android_client_info": {
+          "package_name": "com.projekti.grupi3.sportre"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845346581343-8rljglc4bgpenqlpplk0k22caf9qs2d7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.projekti.grupi3.sportre",
+            "certificate_hash": "ad057fcc3149ed02eeadc27ba0e16c853669f50b"
+          }
+        },
+        {
+          "client_id": "845346581343-0e088mrik4uqhp9lrhl7oldfvdgndt2l.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "845346581343-0e088mrik4uqhp9lrhl7oldfvdgndt2l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2X-9Ze766A0LCLhDvXxJR7f344vG_opY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845346581343-0e088mrik4uqhp9lrhl7oldfvdgndt2l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
