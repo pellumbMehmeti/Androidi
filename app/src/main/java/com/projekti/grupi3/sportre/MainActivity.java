@@ -1,12 +1,9 @@
 package com.projekti.grupi3.sportre;
 
-
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -26,9 +23,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText editTextName, editTextEmail, editTextPassword;
     private ProgressBar progressBar;
     private Spinner typeSpinner;
-    private ProgressDialog mProgress;
+    private Button bLogin;
+
     private FirebaseAuth mAuth;
-    private Button BLogin;
+
+    public MainActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,24 +38,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editTextName = findViewById(R.id.edit_text_name);
         editTextEmail = findViewById(R.id.edit_text_email);
         editTextPassword = findViewById(R.id.edit_text_password);
-       BLogin = findViewById(R.id.button_login);
-        mProgress=new ProgressDialog(this);
         progressBar = findViewById(R.id.progressbar);
         progressBar.setVisibility(View.GONE);
-        typeSpinner=findViewById(R.id.spinner1);
+        typeSpinner= findViewById(R.id.spinner1);
+
+
         mAuth = FirebaseAuth.getInstance();
 
-       findViewById(R.id.button_login).setOnClickListener(this);
-        BLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent regIntent = new Intent(MainActivity.this, Login_Activity.class);
-                startActivity(regIntent);
-
-            }
-        });
-
+        findViewById(R.id.button_register).setOnClickListener(this);
+        findViewById(R.id.button_login).setOnClickListener(this);
     }
 
     @Override
@@ -63,10 +54,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStart();
 
         if (mAuth.getCurrentUser() != null) {
-            Intent loginIntent = new Intent(MainActivity.this, userActivity2.class);
-            startActivity(loginIntent);
+            //handle the already login user
         }
     }
+
 
 
     private void registerUser() {
@@ -74,8 +65,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
         final String type = typeSpinner.getSelectedItem().toString().trim();
-        mProgress.setMessage("Registering User...");
-        mProgress.show();
+
+        if (name.isEmpty()) {
+            editTextName.setError(getString(R.string.input_error_name));
+            editTextName.requestFocus();
+            return;
+        }
+
+        if (email.isEmpty()) {
+            editTextEmail.setError(getString(R.string.input_error_email));
+            editTextEmail.requestFocus();
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editTextEmail.setError(getString(R.string.input_error_email));
+            editTextEmail.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            editTextPassword.setError(getString(R.string.input_error_password));
+            editTextPassword.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            editTextPassword.setError(getString(R.string.input_error_password_length));
+            editTextPassword.requestFocus();
+            return;
+        }
+
+
 
 
         progressBar.setVisibility(View.VISIBLE);
@@ -83,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                                   progressBar.setVisibility(View.GONE);
+
                         if (task.isSuccessful()) {
 
                             User user = new User(
@@ -97,19 +118,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                                           progressBar.setVisibility(View.GONE);
+                                    progressBar.setVisibility(View.GONE);
                                     if (task.isSuccessful()) {
-                                        // Toast.makeText(MainActivity.this,"Registered Successfully",Toast.LENGTH_LONG).show();
-                                        Intent loginIntent = new Intent(MainActivity.this, userActivity2.class);
-                                      startActivity(loginIntent);
+                                       // Toast.makeText(MainActivity.this, getString(R.string.registration_success), Toast.LENGTH_LONG).show();
+                                        Intent loginIntent = new Intent(MainActivity.this,AddField.class);
+                                        startActivity(loginIntent);
                                     } else {
-                                        Toast.makeText(MainActivity.this, "Failed to Register new user!", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MainActivity.this, getString(R.string.registration_failed), Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
-
-                            mProgress.dismiss();
-
 
                         } else {
                             Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
@@ -117,8 +135,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
 
+    }
 
-
+    public void goToLogin()
+    {
+        Intent goToLoginIntent = new Intent(MainActivity.this, Login_Activity.class);
+        startActivity(goToLoginIntent);
     }
 
     @Override
@@ -127,8 +149,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button_register:
                 registerUser();
                 break;
+            case R.id.button_login:
+                goToLogin();
+                break;
         }
     }
 }
-
-

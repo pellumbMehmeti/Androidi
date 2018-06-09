@@ -27,7 +27,7 @@ public class Login_Activity extends AppCompatActivity {
     private EditText loginEmailText;
     private EditText loginPassText;
     private Button loginBtn;
-    // private Button loginRegBtn;
+    private Button registerBtn;
 
     private FirebaseAuth mAuth;
     private FirebaseUser mUCurrentUser;
@@ -41,27 +41,25 @@ public class Login_Activity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mUCurrentUser = mAuth.getCurrentUser();
-        mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(mUCurrentUser.getUid()).child("uType");
+        mDatabaseUser = FirebaseDatabase.getInstance().getReference();
 
         loginEmailText = findViewById(R.id.reg_email);
         loginPassText = findViewById(R.id.reg_confirm_pass);
         loginBtn = findViewById(R.id.login_btn);
-        //loginRegBtn = findViewById(R.id.btn_login);
-
-        final String loginEmail = loginEmailText.getText().toString();
-        final String loginPass = loginPassText.getText().toString();
-
+        registerBtn = findViewById(R.id.signup_btn);
 
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loginUser();
-
-
             }
-
-
+        });
+        registerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendToRegister();
+            }
         });
 
 
@@ -71,44 +69,36 @@ public class Login_Activity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    sendToMain();
+        if (mAuth.getCurrentUser() != null) {
 
+            Intent intent = new Intent(Login_Activity.this,userActivity2.class);
+            startActivity(intent);
 
-                } else {
-                    // User is signed out
-                    // Authenticated successfully with authData
-                    Intent intent = new Intent(Login_Activity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-
-                }
-            }
-        };
-
-
+        }
     }
 
 
+    private void sendToRegister() {
 
-
-    private void sendToMain() {
-
-        Intent mainIntent = new Intent(Login_Activity.this, userActivity2.class);
-        startActivity(mainIntent);
+        Intent mainIntent1 = new Intent(Login_Activity.this, MainActivity.class);
+        startActivity(mainIntent1);
         finish();
 
     }
 
     private void loginUser() {
-        final String loginEmail = loginEmailText.getText().toString();
-        final String loginPass = loginPassText.getText().toString();
+        final String loginEmail = loginEmailText.getText().toString().trim();
+        final String loginPass = loginPassText.getText().toString().trim();
+
+        if(TextUtils.isEmpty(loginEmail)){
+            Toast.makeText(this, "Please Enter Emailsss", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(TextUtils.isEmpty(loginPass)){
+            Toast.makeText(this, "Please Enter Your PASSWORDS", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
 
         mAuth.signInWithEmailAndPassword(loginEmail, loginPass)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -116,39 +106,51 @@ public class Login_Activity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                            String RegisteredUserID = currentUser.getUid();
+                            onAuthSuccess(task.getResult().getUser());
 
-                            DatabaseReference jLoginDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-
-                            jLoginDatabase.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    String userType = dataSnapshot.child("uType").getValue().toString();
-                                    if (userType.equals("Regular User")) {
-                                        Intent intentResident = new Intent(Login_Activity.this, userActivity2.class);
-                                        intentResident.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intentResident);
-                                        finish();
-                                    } else if (userType.equals("Sport Terrain Owner")) {
-                                        Intent intentMain = new Intent(Login_Activity.this, AddField.class);
-                                        intentMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intentMain);
-                                        finish();
-                                    } else {
-                                        Toast.makeText(Login_Activity.this, "Failed Login. Please Try Again", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
+                        }
+                        else {
+                            Toast.makeText(Login_Activity.this, "Could not login, password or email wrong", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-}
+
+    private void onAuthSuccess(FirebaseUser mUCurrentUser) {        // ndrro ne user
+
+        //String username = usernameFromEmail(user.getEmail())
+        if (mUCurrentUser != null) {
+            //Toast.makeText(signinActivity.this, user.getUid(), Toast.LENGTH_SHORT).show();
+            mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(mUCurrentUser.getUid()).child("uType");
+            mDatabaseUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String userType = dataSnapshot.child("uType").getValue().toString();
+                    //for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    // Toast.makeText(signinActivity.this, value, Toast.LENGTH_SHORT).show();
+
+                        //String jason = (String) snapshot.getValue();
+                        //Toast.makeText(signinActivity.this, jason, Toast.LENGTH_SHORT).show();
+                        if (userType.equals("Regular User")) {
+                            Intent intentResident = new Intent(Login_Activity.this, userActivity2.class);
+                            startActivity(intentResident);
+                            finish();
+                        }
+                        else if (userType.equals("Sport Terrain Owner")) {
+                        Intent intentMain = new Intent(Login_Activity.this, OwnerActivity.class);
+                        startActivity(intentMain);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+    }}
+
+
+
