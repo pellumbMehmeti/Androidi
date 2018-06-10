@@ -3,8 +3,10 @@
     package="com.projekti.grupi3.sportre">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-feature android:glEsVersion="0x00010001" android:required="true" />
 
+    <uses-feature
+        android:glEsVersion="0x00010001"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -24,9 +26,9 @@
         <activity android:name=".Login_Activity" />
         <activity android:name=".OwnerActivity" />
         <activity android:name=".AddField" />
-        <activity android:name=".ReserveField"></activity>
-
+        <activity android:name=".ReserveField" />
+        <activity android:name=".Main2Activity" />
+        <activity android:name=".FieldSingleActivity"></activity>
     </application>
 
 </manifest>
-
