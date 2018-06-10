@@ -32,7 +32,7 @@ public class Login_Activity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser mUCurrentUser;
     private DatabaseReference mDatabaseUser;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +69,9 @@ public class Login_Activity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (mAuth.getCurrentUser() != null) {
-
-            Intent intent = new Intent(Login_Activity.this,userActivity2.class);
-            startActivity(intent);
-
         }
-    }
+
+
 
 
     private void sendToRegister() {
@@ -116,12 +112,12 @@ public class Login_Activity extends AppCompatActivity {
                 });
     }
 
-    private void onAuthSuccess(FirebaseUser mUCurrentUser) {        // ndrro ne user
+    private void onAuthSuccess(FirebaseUser user) {        // ndrro ne user
 
         //String username = usernameFromEmail(user.getEmail())
-        if (mUCurrentUser != null) {
+        if (user != null) {
             //Toast.makeText(signinActivity.this, user.getUid(), Toast.LENGTH_SHORT).show();
-            mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(mUCurrentUser.getUid()).child("uType");
+            mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid());
             mDatabaseUser.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
