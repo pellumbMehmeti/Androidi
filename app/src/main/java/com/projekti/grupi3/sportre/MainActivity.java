@@ -16,7 +16,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -26,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button bLogin;
 
     private FirebaseAuth mAuth;
+    private FirebaseUser mUCurrentUser;
+    private DatabaseReference mDatabaseUser;
 
     public MainActivity() {
     }
@@ -112,17 +119,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     email,
                                     type
                             );
+                            onAuthSuccess(task.getResult().getUser());
 
-                            FirebaseDatabase.getInstance().getReference("Users")
+                         FirebaseDatabase.getInstance().getReference("Users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     progressBar.setVisibility(View.GONE);
                                     if (task.isSuccessful()) {
-                                       // Toast.makeText(MainActivity.this, getString(R.string.registration_success), Toast.LENGTH_LONG).show();
-                                        Intent loginIntent = new Intent(MainActivity.this,AddField.class);
-                                        startActivity(loginIntent);
+                                        Toast.makeText(MainActivity.this, getString(R.string.registration_success), Toast.LENGTH_LONG).show();
+                                       // Intent loginIntent = new Intent(MainActivity.this,AddField.class);
+                                      //  startActivity(loginIntent);
                                     } else {
                                         Toast.makeText(MainActivity.this, getString(R.string.registration_failed), Toast.LENGTH_LONG).show();
                                     }
@@ -134,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
+
 
     }
 
@@ -153,5 +162,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 goToLogin();
                 break;
         }
+    }
+    private void onAuthSuccess(FirebaseUser user) {        // ndrro ne user
+
+        //String username = usernameFromEmail(user.getEmail())
+        if (user != null) {
+            //Toast.makeText(signinActivity.this, user.getUid(), Toast.LENGTH_SHORT).show();
+            mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid());
+            mDatabaseUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String userType = dataSnapshot.child("uType").getValue().toString();
+                    //for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    // Toast.makeText(signinActivity.this, value, Toast.LENGTH_SHORT).show();
+
+                    //String jason = (String) snapshot.getValue();
+                    //Toast.makeText(signinActivity.this, jason, Toast.LENGTH_SHORT).show();
+                    if (userType.equals("Regular User")) {
+                        Intent intentResident = new Intent(MainActivity.this, userActivity2.class);
+                        startActivity(intentResident);
+                        finish();
+                    }
+                    else if (userType.equals("Sport Terrain Owner")) {
+                        Intent intentMain = new Intent(MainActivity.this, OwnerActivity.class);
+                        startActivity(intentMain);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
     }
 }
