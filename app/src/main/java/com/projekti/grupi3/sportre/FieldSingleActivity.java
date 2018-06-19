@@ -1,4 +1,4 @@
-package com.example.admin.resport;//per github
+package com.projekti.grupi3.sportre;//per github
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
